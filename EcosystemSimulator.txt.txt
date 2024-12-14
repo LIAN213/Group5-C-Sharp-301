@@ -1,0 +1,221 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        //Cimini and Ismael
+        Ecosystem ecosystem = new Ecosystem();
+        ecosystem.InitializeEcosystem();
+
+        while (true)
+        {
+            Console.WriteLine("\nEcosystem Simulator");
+            Console.WriteLine("1. View Ecosystem Status");
+            Console.WriteLine("2. Simulate a Day");
+            Console.WriteLine("3. Add New Species");
+            Console.WriteLine("4. Remove Species");
+            Console.WriteLine("5. Exit");
+            Console.Write("Select an option: ");
+            string choice = Console.ReadLine();
+
+            if (choice == "1")
+            {
+                ecosystem.ViewStatus();
+            }
+            else if (choice == "2")
+            {
+                ecosystem.SimulateDay();
+            }
+            else if (choice == "3")
+            {
+                ecosystem.AddSpecies();
+            }
+            else if (choice == "4")
+            {
+                ecosystem.RemoveSpecies();
+            }
+            else if (choice == "5")
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Invalid input! Please try again.");
+            }
+        }
+    }
+}
+
+class Animal
+{
+    public string Name { get; set; }
+    public string Type { get; set; } // Predator or Prey
+    public int Population { get; set; }
+
+    public Animal(string name, string type, int population)
+    {
+        Name = name;
+        Type = type;
+        Population = population;
+    }
+}
+
+class Plant
+{
+    public string Name { get; set; }
+    public int GrowthRate { get; set; } // How much the plant grows every day
+    public int Population { get; set; }
+
+    public Plant(string name, int growthRate, int population)
+    {
+        Name = name;
+        GrowthRate = growthRate;
+        Population = population;
+    }
+}
+
+class Ecosystem
+{
+    private List<Animal> animals = new List<Animal>();
+    private List<Plant> plants = new List<Plant>();
+    private Random rand = new Random();
+
+    public void InitializeEcosystem()
+    {
+        animals.Add(new Animal("Lions", "Predator", 5));
+        animals.Add(new Animal("Deer", "Prey", 20));
+        plants.Add(new Plant("Grass", 5, 50));
+    }
+
+       //Ganados and Biñan
+    public void ViewStatus()
+    {
+        Console.WriteLine("\nCurrent Ecosystem Status:");
+        foreach (var animal in animals)
+        {
+            Console.WriteLine($"{animal.Name}: {animal.Population} individuals");
+        }
+        foreach (var plant in plants)
+        {
+            Console.WriteLine($"{plant.Name}: {plant.Population} plants");
+        }
+    }
+
+    public void SimulateDay()
+    {
+        // Simulate predator-prey interaction
+        foreach (var animal in animals)
+        {
+            if (animal.Type == "Predator")
+            {
+                foreach (var prey in animals)
+                {
+                    if (prey.Type == "Prey")
+                    {
+                        int preyEaten = Math.Min(prey.Population, animal.Population);
+                        prey.Population -= preyEaten;
+                        Console.WriteLine($"{animal.Name} ate {preyEaten} {prey.Name}(s).");
+                    }
+                }
+            }
+        }
+
+        // Simulate prey eating plants
+        foreach (var animal in animals)
+        {
+            if (animal.Type == "Prey")
+            {
+                foreach (var plant in plants)
+                {
+                    int plantsEaten = Math.Min(plant.Population, animal.Population);
+                    plant.Population -= plantsEaten;
+                    Console.WriteLine($"{animal.Name} ate {plantsEaten} {plant.Name}(s).");
+                }
+            }
+        }
+
+        // Plants grow
+        foreach (var plant in plants)
+        {
+            plant.Population += plant.GrowthRate;
+            Console.WriteLine($"{plant.Name} grew by {plant.GrowthRate}.");
+        }
+
+        // Random event
+        ApplyRandomEvent();
+
+        ViewStatus();
+    }
+     //Tan and Luyaga
+    public void AddSpecies()
+    {
+        Console.Write("Enter the species name: ");
+        string name = Console.ReadLine();
+        Console.Write("Is it a Predator or Prey? ");
+        string type = Console.ReadLine();
+        Console.Write("Enter the starting population: ");
+        int population = int.Parse(Console.ReadLine());
+
+        animals.Add(new Animal(name, type, population));
+        Console.WriteLine($"{name} has been added to the ecosystem.");
+    }
+
+    public void RemoveSpecies()
+    {
+        Console.Write("Enter the name of the species to remove: ");
+        string name = Console.ReadLine();
+        animals.RemoveAll(a => a.Name.ToLower() == name.ToLower());
+        plants.RemoveAll(p => p.Name.ToLower() == name.ToLower());
+        Console.WriteLine($"{name} has been removed from the ecosystem.");
+    }
+
+    private void ApplyRandomEvent()
+    {
+        int eventChoice = rand.Next(1, 6); // Random number between 1 and 5
+        switch (eventChoice)
+        {
+            case 1:
+                Console.WriteLine("\nA drought has occurred! Plant growth is reduced.");
+                foreach (var plant in plants)
+                {
+                    plant.GrowthRate = (int)(plant.GrowthRate * 0.5); // Halve the plant growth rate
+                }
+                break;
+
+            case 2:
+                Console.WriteLine("\nA population boom has occurred! Animal populations increase.");
+                foreach (var animal in animals)
+                {
+                    animal.Population = (int)(animal.Population * 1.2); // 20% increase in population
+                    Console.WriteLine($"{animal.Name} population increased by 20%.");
+                }
+                break;
+
+            case 3:
+                Console.WriteLine("\nA mild weather event happened. Plant growth remains the same.");
+                break;
+
+            case 4:
+                Console.WriteLine("\nA wildfire destroyed some plants!");
+                foreach (var plant in plants)
+                {
+                    plant.Population = (int)(plant.Population * 0.7); // Plants are reduced by 30%
+                }
+                break;
+
+            case 5:
+                Console.WriteLine("\nPredator population is booming!");
+                foreach (var animal in animals)
+                {
+                    if (animal.Type == "Predator")
+                    {
+                        animal.Population = (int)(animal.Population * 1.2); 
+                        Console.WriteLine($"{animal.Name} population increased by 20%.");
+                    }
+                }
+                break;
+        }
+    }
+}
